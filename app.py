@@ -117,20 +117,20 @@ def render_login():
                 st.success("Created/updated: **admin@su.edu / Admin@1234**")
         st.markdown("</div>", unsafe_allow_html=True)
 
-    with col2:
-        st.markdown('<div class="login-card">', unsafe_allow_html=True)
-        st.markdown("**Quick tools**")
-        st.markdown("<div class='muted'>Import accounts from existing collections.</div>", unsafe_allow_html=True)
-        a, b = st.columns(2)
-        with a:
-            if st.button("Import Teachers ➜ Users", use_container_width=True):
-                _, scanned, inserted = import_from_collection("teachers", "faculty", "email", "name")
-                st.success(f"Imported {inserted} of {scanned}.")
-        with b:
-            if st.button("Import Students ➜ Users", use_container_width=True):
-                _, scanned, inserted = import_from_collection("students", "student", "email", "Name")
-                st.success(f"Imported {inserted} of {scanned}.")
-        st.markdown("</div>", unsafe_allow_html=True)
+#    with col2:
+#        st.markdown('<div class="login-card">', unsafe_allow_html=True)
+#        st.markdown("**Quick tools**")
+#        st.markdown("<div class='muted'>Import accounts from existing collections.</div>", unsafe_allow_html=True)
+#        a, b = st.columns(2)
+#        with a:
+#            if st.button("Import Teachers ➜ Users", use_container_width=True):
+#                _, scanned, inserted = import_from_collection("teachers", "faculty", "email", "name")
+#               st.success(f"Imported {inserted} of {scanned}.")
+#       with b:
+#            if st.button("Import Students ➜ Users", use_container_width=True):
+#                _, scanned, inserted = import_from_collection("students", "student", "email", "Name")
+#                st.success(f"Imported {inserted} of {scanned}.")
+#        st.markdown("</div>", unsafe_allow_html=True)
 
 def main():
     user = get_current_user() or current_user()
