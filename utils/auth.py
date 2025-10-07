@@ -19,8 +19,8 @@ def _now():
 def _nemail(e: str) -> str:
     return (e or "").strip().lower()
 
-# def _hash(pw: str) -> str:
-#     return bcrypt.hashpw(pw.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+def _hash(pw: str) -> str:
+    return bcrypt.hashpw(pw.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 def _check_pw(pw: str, stored) -> bool:
     if not stored:
@@ -228,7 +228,7 @@ def render_logout_sidebar() -> None:
                  </div>""",
             unsafe_allow_html=True,
         )
-        if st.button("Log out", type="secondary", use_container_width=True, key="sb_logout"):
+        if st.button("Log out", type="secondary", width='stretch', key="sb_logout"):
             sign_out()
             # Cross-version rerun (Streamlit 1.30+: st.rerun; older: st.experimental_rerun)
             r = getattr(st, "rerun", None) or getattr(st, "experimental_rerun", None)
