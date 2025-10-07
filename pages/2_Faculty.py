@@ -138,9 +138,10 @@ def load_enrollments_df(teacher_email: Optional[str]) -> pd.DataFrame:
         "teacher.email": 1,
         "teacher.name": 1,
         "program.program_code": 1,
-        "term.section": 1,
+        "section": 1,
     }
     rows = list(col("enrollments").find(q, proj))
+    
 
     def flatten(e: dict) -> dict:
         term = e.get("term") or {}
@@ -148,6 +149,7 @@ def load_enrollments_df(teacher_email: Optional[str]) -> pd.DataFrame:
         sub = e.get("subject") or {}
         tch = e.get("teacher") or {}
         prog = e.get("program") or {}
+        
         return {
             "student_no": stu.get("student_no"),
             "student_name": stu.get("name"),
@@ -276,7 +278,7 @@ def main():
 
         st.dataframe(
             pct[["Course Code", "Course Name"] + labels + ["Total"]],
-            width='stretch',
+            use_container_width=True,
             hide_index=True,
         )
 
@@ -418,7 +420,7 @@ def main():
 
             st.dataframe(
                 pivot_display[["Student ID", "Name"] + terms_order + ["Overall Trend"]],
-                width='stretch',
+                use_container_width=True,
                 hide_index=True,
             )
 
@@ -547,7 +549,7 @@ def main():
         show["Difficulty Level"] = show["Difficulty Level"].astype(lvl_order)
         show = show.sort_values(["Difficulty Level", "Fail Rate (%)"], ascending=[True, False]).reset_index(drop=True)
 
-        st.dataframe(show, width='stretch')
+        st.dataframe(show, use_container_width=True)
 
 
     # ─────────────────────────────────────
@@ -615,8 +617,8 @@ def main():
                 st.success("No intervention candidates in the current term scope.")
             else:
                 def risk_flag(row):
-                    g = pd.to_numeric(row.get("grade"), errors="coerce")
-                    r = str(row.get("remark") or "").lower()
+                    g = pd.to_numeric(row.get("term_grade"), errors="coerce")
+                    r = str(row.get("term_remark") or "").lower()
                     if pd.isna(g) or ("inc" in r or "incomplete" in r):
                         return "Missing Grade"
                     if g < PASSING_GRADE:
@@ -644,7 +646,7 @@ def main():
                     fac_name = current_scope["teacher_email"].dropna().iloc[0]
 
                 st.markdown(f"**Faculty Name:** {fac_name if fac_name else '—'}")
-                st.dataframe(show, width='stretch')
+                st.dataframe(show, use_container_width=True)
 
     # ─────────────────────────────────────
     # 5. Grade Submission Status
@@ -654,9 +656,8 @@ def main():
         "- Tracks the status of grade submissions by faculty for each class. (e.g., complete grades, with blank grades)"
     )
 
-    # Use page-scope dataset (already filtered by teacher / term / section)
     try:
-        base5 = df_scope.copy()
+        base5 = df.copy()
     except NameError:
         base5 = df.copy()
 
@@ -707,7 +708,7 @@ def main():
         show_display = show.copy()
         show_display["Submission Rate"] = show_display["Submission Rate"].astype(int).astype(str) + "%"
 
-        st.dataframe(show_display, width='stretch')
+        st.dataframe(show_display, use_container_width=True)
 
 
     # ─────────────────────────────────────
@@ -805,7 +806,7 @@ def main():
                     .sort_values(["Course Code", "Name"], na_position="last")
                 )
 
-                st.dataframe(res, width='stretch', hide_index=True)
+                st.dataframe(res, use_container_width=True, hide_index=True)
                 st.caption(f"{len(res)} result(s)")
 
     # ─────────────────────────────────────
@@ -893,7 +894,7 @@ def main():
                 out = out.sort_values(["Pass/Fail", "Student Name"], ascending=[True, True], na_position="last")
 
                 st.markdown("**Student Grades**")
-                st.dataframe(out, width='stretch', hide_index=True)
+                st.dataframe(out, use_container_width=True, hide_index=True)
 
 
 if __name__ == "__main__":
