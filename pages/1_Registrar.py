@@ -136,8 +136,8 @@ def load_enrollments_df(
         "subject.code": 1,
         "subject.title": 1,
         "subject.department": 1,     # if not present in docs it's fine (becomes NaN)
-        "term.grade": 1,                # original grade text/number
-        "term.remark": 1,               # INC/DROPPED/etc
+        "term.grade": 1,           # grade is stored in term.grade
+        "term.remark": 1,          # remark is stored in term.remark
         "teacher.name": 1,
         "teacher.email": 1,
         "term.school_year": 1,
@@ -161,9 +161,9 @@ def load_enrollments_df(
         return pd.DataFrame(columns=[
             "student_no","student_name","program",
             "subject_code","subject_title","department",
-            "term_grade","raw_grade","term_remark",
-            "teacher_name","teacher_email", "term",
-            "term_label","school_year","semester","term_section"
+            "grade","raw_grade","remark",
+            "teacher_name","teacher_email",
+            "term_label","school_year","semester","section"
         ])
 
     df = pd.json_normalize(rows).rename(columns={
@@ -174,10 +174,13 @@ def load_enrollments_df(
         "subject.code": "subject_code",
         "subject.title": "subject_title",
         "subject.department": "department",
+        "term.grade": "grade",
+        "term.remark": "remark",
         "teacher.name": "teacher_name",
         "teacher.email": "teacher_email",
         "term.school_year": "school_year",
         "term.semester": "semester",
+        "term.section": "section",
     })
 
     # Program display string
@@ -190,8 +193,8 @@ def load_enrollments_df(
     df["term_label"] = df.apply(lambda r: _term_label(r.get("school_year"), r.get("semester")), axis=1)
 
     # Keep the original grade text and also a numeric version
-    df["raw_grade"] = df.get("term_grade")
-    df["term_grade"] = pd.to_numeric(df["raw_grade"], errors="coerce")  # numeric, may be NaN for INC/etc
+    df["raw_grade"] = df.get("grade")
+    df["grade"] = pd.to_numeric(df["raw_grade"], errors="coerce")  # numeric, may be NaN for INC/etc
 
     # Optional filters
     subj_re = _to_regex(subject_regex_str)
@@ -213,7 +216,7 @@ def load_enrollments_df(
     wanted = [
         "student_no","student_name","program",
         "subject_code","subject_title","department",
-        "term_grade","raw_grade","remark",
+        "grade","raw_grade","remark",
         "teacher_name","teacher_email",
         "term_label","school_year","semester","section",
     ]
@@ -239,7 +242,7 @@ def render_gpa_reports(df: pd.DataFrame):
         return
     
     # Check if grade column exists and has valid data
-    if "grade" not in df.columns or df["term.grade"].isna().all():
+    if "grade" not in df.columns or df["grade"].isna().all():
         st.warning("No grade data available for GPA reports.")
         return
     
@@ -664,11 +667,11 @@ def _load_all_enrollments_for_student(student_no: Optional[str], email: Optional
         "program.program_name": 1,
         "subject.code": 1,
         "subject.title": 1,
-        "grade": 1,
-        "remark": 1,
+        "term.grade": 1,
+        "term.remark": 1,
         "term.school_year": 1,
         "term.semester": 1,
-        "section": 1,
+        "term.section": 1,
         "teacher.name": 1,
     }
     rows = list(col("enrollments").find(filt, fields))
@@ -684,8 +687,11 @@ def _load_all_enrollments_for_student(student_no: Optional[str], email: Optional
             "program.program_name": "program_name",
             "subject.code": "subject_code",
             "subject.title": "subject_title",
+            "term.grade": "grade",
+            "term.remark": "remark",
             "term.school_year": "school_year",
             "term.semester": "semester",
+            "term.section": "section",
             "teacher.name": "teacher_name",
         }
     )
